@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: branchRunner-container
+    command: postgres -c ssl=off
+    environment:
+      POSTGRES_DB: branchRunner_db
+      POSTGRES_USER: branchRunnerUser
+      POSTGRES_PASSWORD: ${PASSWORD_DB}
+    ports:
+      - "5435:5432"              # Puerto externo 5435
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U branchRunner_user -d branchRunner"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: branchRunner-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"            # Panel: http://localhost:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+  rabbitmq_data:

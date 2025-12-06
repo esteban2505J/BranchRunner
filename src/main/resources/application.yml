@@ -1,0 +1,12 @@
+
+spring:
+  application:
+    name: branchRunner
+  datasource:
+    url: jdbc:postgresql://localhost:5432/branchRunner
+    username: d
+    password: ${PASSWORD_DB}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
